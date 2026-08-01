@@ -165,7 +165,7 @@ func (c *Coder) DecodeHeader(data []byte, h *MessageHeader) (int, error) {
 
 	var opLen int
 	switch {
-	case lenNib <= MessageLength13Base:
+	case lenNib < MessageLength13Base:
 		opLen = int(lenNib)
 	case lenNib == 13:
 		if len(data) < 1 {
@@ -181,7 +181,7 @@ func (c *Coder) DecodeHeader(data []byte, h *MessageHeader) (int, error) {
 		}
 		extLen := binary.BigEndian.Uint16(data)
 		data = data[2:]
-		hdrOff++
+		hdrOff += 2
 		opLen = MessageLength14Base + int(extLen)
 	case lenNib == 15:
 		if len(data) < 4 {
@@ -193,7 +193,7 @@ func (c *Coder) DecodeHeader(data []byte, h *MessageHeader) (int, error) {
 		opLen = MessageLength15Base + int(extLen)
 	}
 
-	h.MessageLength = hdrOff + uint32(tkl) + math.CastTo[uint32](opLen)
+	h.MessageLength = hdrOff + 1 + uint32(tkl) + math.CastTo[uint32](opLen)
 	if len(data) < 1 {
 		return -1, message.ErrShortRead
 	}
