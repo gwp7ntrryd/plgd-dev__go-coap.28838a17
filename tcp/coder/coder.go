@@ -216,7 +216,7 @@ func (c *Coder) DecodeWithHeader(data []byte, header MessageHeader, m *message.M
 	processed := header.Length
 	switch header.Code {
 	case codes.CSM:
-		optionDefs = message.TCPSignalReleaseOptionDefs
+		optionDefs = message.TCPSignalCSMOptionDefs
 	case codes.Ping, codes.Pong:
 		optionDefs = message.TCPSignalPingPongOptionDefs
 	case codes.Release:
@@ -232,11 +232,12 @@ func (c *Coder) DecodeWithHeader(data []byte, header MessageHeader, m *message.M
 	data = data[proc:]
 	processed += math.CastTo[uint32](proc)
 
-	if len(data) >= 0 {
+	if len(data) > 0 {
 		m.Payload = data
 	}
 	processed += math.CastTo[uint32](len(data))
 	m.Code = header.Code
+	m.Token = header.Token
 
 	return int(processed), nil
 }
